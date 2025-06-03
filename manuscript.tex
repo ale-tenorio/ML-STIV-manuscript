@@ -1,0 +1,145 @@
+%% 
+%% Copyright 2007-2020 Elsevier Ltd
+%% 
+%% This is a modified file from the 'Elsarticle Bundle', which is available under the conditions of the LaTeX Project Public
+%% License, either version 1.2 of this license or any later version.
+%% ---------------------------------------------
+\documentclass[12pt]{elsarticle}
+
+%% The amssymb package provides various useful mathematical symbols
+\usepackage{amssymb}
+
+%% The lineno packages adds line numbers.
+\usepackage{lineno}
+
+\usepackage{booktabs}
+\usepackage{graphicx}
+
+\begin{document}
+
+\begin{frontmatter}
+
+%% F Engel: 20240917 - This abstract was reviewed according to USGS Fundamental Science Practices. 
+%%                     and is approved for dessimination. USGS record: IP-170748 
+
+\title{Improving Space-Time Image Velocimetry Accuracy with Deep Learning: Integrating Synthetic and Real-World Data}
+
+\author[inst1]{Tenorio, A}
+\author[inst1]{Fernández, R}
+\author[inst2]{Engel, F}
+\author[inst1]{Liu, X}
+
+\affiliation[inst1]{organization={Pennsylvania State University}, 
+			department={Department of Civil and Environmental Engineering},
+            city={University Park},
+            state={Pennsylvania},
+            country={USA}}
+
+%% F Engel: Added an extra comma to `department` b/c TEX render was missing it for some reason.
+\affiliation[inst2]{organization={U.S. Geological Survey}, 
+			department={Water Mission Area, Observing Systems Division, Hydrologic Remote Sensing Branch,},
+            city={San Antonio},
+            state={Texas},
+            country={USA}}
+
+\begin{keyword}
+STIV \sep Deep Learning \sep Flow measurements
+\end{keyword}
+
+\end{frontmatter}
+
+\linenumbers
+\section*{Abstract}
+Quantifying streamflow is essential for resource management, habitat monitoring, and emergency response, but extreme events pose challenges for direct measurements due to safety and accessibility concerns. Remote sensing techniques, such as Space-Time Image Velocimetry (STIV), allow for non-contact measurements of velocity and discharge. STIV uses video footage of the water surface to generate Space-Time Images (STI), assuming surface textures will act as passive tracers. However, environmental conditions such as sunlight conditions, surface reflections or rain can hinder the quality of the STIs. While Wavenumber–Frequency Spectra (WFS) filters can improve STI quality, they struggle in real-time applications. Incorporating deep learning can enhance real-time accuracy, as demonstrated in previous work with synthetic STIs. We aim to extend this by combining synthetic, computational, laboratory-controlled, and real-world data to improve the accuracy of flow measurements in natural settings.
+\section{Introduction}
+
+
+
+Different approaches have been explored to improve the accuracy and reliability of STIV. \cite{fujita2020application} proposed a method to estimate the velocity of surface waves using a combination of Wavenumber–Frequency Spectra (WFS) filters. The method consist on generating a mask that ignores a portion of the WFS that does not seem to be related to the surface flow. \cite{watanabe2021improving} proposed a deep learning approach that trains a convolutional neural network (CNN) to estimate the predominant stripe pattern angle of the STI. The CNN was trained using synthetic STIs with results showing promising performance on STIs from real river footage.
+
+Relying on CNNs to estimate the stripe pattern angle of the STI is a promising approach, but it is limited by the restraint of a 
+
+
+\section{Background}
+Introduced by Fujita et al (2007), gradient tensor method \cite{fujita2007development} further improved in 2018 with a two dimensional autocorrelation function for the image intensity distribution of STI that is used for detecting the most probable texture gradient included in STI \cite{fujita2019efficient}.
+
+\begin{equation}
+    R(\tau_x, \tau_y) = \int_{-\infty}^{\infty}\int_{-\infty}^{\infty} f(x, y) f(x - \tau_x, y - \tau_y) dx dy,
+\end{equation}
+
+where f(x,y) is the image pixel intensity distribution in the STI and (\(\tau_x, \tau_y\)) are shift space and time parameters.
+
+The mean velocity component at the line segment can be  estimated by
+\begin{equation}
+    U=\frac{S_x}{S_t}\tan(\theta_{max})
+\end{equation}
+where $S_x$ is the size of an image pixel and $S_t$ is the time interval between frames. 
+
+Most recently, STIV started adopting a machine learning approach to improve the accuracy of the velocity estimation. Watanabe et al. proposed a deep learning approach that trains a convolutional neural network (CNN) to estimate the predominant stripe pattern angle of the STI \cite{watanabe2021improving}. The CNN was trained using synthetic STIs with results showing promising performance on STIs from real river footage.
+
+Although, STIV remains as a 1D technique for estimating surface velocities. This assumes the search line has to be placed in the streamwise direction \cite{fujita2007development,fujita2019efficient,watanabe2021improving,fujita2020application}. For an automated technique, this is not ideal since it requires more user intervention, limiting its applicability in real-time or large-scale scenarios.
+
+\section{Methodology}
+\subsection{Training set}
+
+\subsection{Deep Learning Architecture}
+The angle prediction model employs a Convolutional Neural Network (CNN) architecture. The input to the network is a single-channel 128x128 grayscale STI. The architecture consists of four convolutional blocks and one fully connected (FC) layers, as detailed in Table \ref{tab:cnn_architecture_condensed}. This design allows the network to learn increasingly complex features as it progresses through the layers.
+
+In between convolutions, the specified activation (GELU) and normalization (Batch Normalization) layers are applied in sequence. The GELU activation function is chosen for its smooth approximation of the ReLU function, which helps mitigate the "dying ReLU" problem \cite{hendrycks2016GELU, lu2019dying}. Batch Normalization (BN) is applied to stabilize and accelerate training by normalizing the outputs of the convolutional layers \cite{ioffe2015batch}.
+
+Following the convolutional blocks, a Global Average Pooling (GAP) layer is applied to the feature maps to avoid overfitting \cite{watanabe2021improving, lin2013GAP}. The output of the GAP layer is then fed into a fully connected (FC) head consisting of two linear layers. Finally, the output is a single value representing the angle of the predominant stripe pattern in the STI. This output is subsequently scaled to the normalized target range of [-0.5, 0.5].
+
+
+
+The model is trained using Mean Squared Error (MSE) loss, and the Adam optimizer is employed for optimization.
+
+\begin{table}[!htbp] % [htbp] are placement specifiers: here, top, bottom, page
+    \centering
+    \caption{CNN Architecture for Angle Prediction from STI Images.}
+    \label{tab:cnn_architecture_condensed}
+    % To make the table fit if it's too wide, you can use \resizebox
+    \resizebox{\columnwidth}{!}{% % Use \columnwidth if in a single column, \textwidth for full page width
+    \begin{tabular}{llccccc} % Removed @{} to avoid alignment issues
+        \toprule
+        Layer Type                & Input Shape         & Output Shape        & Kernel size & Filters/Units & Activation & Norm. \\
+        \midrule
+        \midrule
+        \multicolumn{6}{l}{\textit{Convolutional Block 1}} \\
+        Conv2D                    & 1x128x128           & 32x128x128          & 3x3     & 32            & GELU   & BN2D    \\
+        MaxPool2D                 & 32x128x128          & 32x64x64            & 2x2     & ---           & ---  & ---       \\
+        \midrule
+        \multicolumn{6}{l}{\textit{Convolutional Block 2}} \\
+        Conv2D                    & 32x64x64            & 64x64x64            & 3x3     & 64            & GELU   & BN2D    \\
+        MaxPool2D                 & 64x64x64            & 64x32x32            & 2x2     & ---           & ---  & ---       \\
+        \midrule
+        \multicolumn{6}{l}{\textit{Convolutional Block 3}} \\
+        Conv2D                    & 64x32x32            & 128x32x32           & 3x3     & 128           & GELU   & BN2D    \\
+        MaxPool2D                 & 128x32x32           & 128x16x16           & 2x2     & ---           & ---  & ---       \\
+        \midrule
+        \multicolumn{6}{l}{\textit{Convolutional Block 4}} \\
+        Conv2D                    & 128x16x16           & 128x16x16           & 3x3     & 128           & GELU   & BN2D    \\
+        MaxPool2D                 & 128x16x16           & 128x8x8             & 2x2     & ---           & ---  & ---       \\
+        \midrule
+        GAP  & 128x8x8             & 128x1x1             & 8x8     & 128           & ---   & ---     \\
+        Flatten                   & 128x1x1             & 128                 & ---     & ---           & ---  & ---       \\
+        \midrule
+        \multicolumn{6}{l}{\textit{Fully Connected (FC) Block}} \\
+        Linear                    & 128                 & 128                 & ---     & 128           & GELU    & BN1D   \\
+        Linear                    & 128                 & 1                   & ---     & 1             & Tanh  & ---      \\
+        \bottomrule
+    \end{tabular}
+    } % End of \resizebox
+    \par\medskip\footnotesize % Add a small space and make the notes smaller
+    \textit{Notes:} BN2D: Batch Normalization 2D. BN1D: Batch Normalization 1D.
+    For Conv2D layers, 
+\end{table}
+
+\subsection{Detecting flow direction ($\phi$)}
+
+
+\subsection{Predicting flow velocity ($\theta_{max}$)}
+
+\bibliographystyle{elsarticle-num}
+\bibliography{references}
+
+\end{document}
