@@ -11,8 +11,6 @@
 
 \begin{frontmatter}
 
-%% F Engel: 20240917 - This abstract was reviewed according to USGS Fundamental Science Practices. 
-%%                     and is approved for dessimination. USGS record: IP-170748 
 
 \title{Improving Space-Time Image Velocimetry Accuracy with Deep Learning: Integrating Synthetic and Real-World Data}
 
@@ -27,7 +25,6 @@
             state={Pennsylvania},
             country={USA}}
 
-%% F Engel: Added an extra comma to `department` b/c TEX render was missing it for some reason.
 \affiliation[inst2]{organization={U.S. Geological Survey}, 
 			department={Water Mission Area, Observing Systems Division, Hydrologic Remote Sensing Branch,},
             city={San Antonio},
@@ -104,15 +101,18 @@ Video footage was processed to generate Space-Time Images (STIs) using the \text
 \subsection{Deep Learning Architecture}
 The angle prediction model employs a Convolutional Neural Network (CNN) architecture. The input to the network is a single-channel 128x128 grayscale STI. The architecture consists of four convolutional blocks and one fully connected (FC) layer, as detailed in Table \ref{tab:cnn_architecture_condensed}. This design allows the network to learn increasingly complex features as it progresses through the layers \cite{zeiler2014visualizing}.
 
-In between convolutions, the specified activation Gaussian Error Linear Unit (GELU) and Batch Normalization layers are applied in sequence. The GELU activation function is chosen for its smooth approximation of the ReLU function, which helps mitigate the "dying ReLU" problem \cite{hendrycks2016GELU, lu2019dying}. BN is applied to stabilize and accelerate training \cite{ioffe2015batch} by normalizing the outputs of the convolutional layers. Following the convolutional blocks, a Global Average Pooling (GAP) layer is applied to the feature maps to prevent overfitting \cite{lin2013GAP, watanabe2021improving}. The output of the GAP layer is then fed into a fully connected (FC) head consisting of two linear layers. Finally, the output is a single value representing the angle of the predominant stripe pattern in the STI. This output is subsequently scaled to the normalized target range of [-0.5, 0.5].
+In between convolutions, the specified activation Gaussian Error Linear Unit (GELU) and Batch Normalization layers are applied in sequence. While the Rectified Linear Unit (ReLU) has been a foundational activation function due to its computational efficiency and ability to mitigate vanisihing gradients \cite{pmlr-v15-glorot11a}, recent advancements have shown benefits from smoother activation functions like GELU; helping mitigate the "dying ReLU" problem \cite{hendrycks2016GELU, lu2019dying}. BN is applied to stabilize and accelerate training \cite{ioffe2015batch} by normalizing the outputs of the convolutional layers. Following the convolutional blocks, a Global Average Pooling (GAP) layer is applied to the feature maps to prevent overfitting \cite{lin2013GAP, watanabe2021improving}. 
 
-\begin{table}[!htbp] % [htbp] are placement specifiers: here, top, bottom, page
+Here it separates:
+
+The output of the GAP layer is then fed into a fully connected (FC) head consisting of two linear layers. Finally, the output is a single value representing the angle of the predominant stripe pattern in the STI. This output is subsequently scaled to the normalized target range of [-0.5, 0.5].
+
+\begin{table}[!htbp]
     \centering
     \caption{CNN Architecture for Angle Prediction from STI Images.}
     \label{tab:cnn_architecture_condensed}
-    % To make the table fit if it's too wide, you can use \resizebox
     \resizebox{\columnwidth}{!}{% % Use \columnwidth if in a single column, \textwidth for full page width
-    \begin{tabular}{llccccc} % Removed @{} to avoid alignment issues
+    \begin{tabular}{llccccc} 
         \toprule
         Layer Type                & Input Shape         & Output Shape        & Kernel Size & Filters/Units & Activation & Norm. \\
         \midrule
@@ -140,7 +140,7 @@ In between convolutions, the specified activation Gaussian Error Linear Unit (GE
         \bottomrule
     \end{tabular}
     } % End of \resizebox
-    \par\medskip\footnotesize % Add a small space and make the notes smaller
+    \par\medskip\footnotesize
     \textit{Notes:} Both CNNs share the same architecture on the convolutional blocks, but differ in the fully connected (FC) head. The first CNN predicts the angle of the predominant stripe pattern in the STI ($\theta_{max}$), while the second CNN predicts the flow direction ($\phi$). 
 \end{table}
 
