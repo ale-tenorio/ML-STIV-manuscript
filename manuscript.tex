@@ -97,15 +97,25 @@ Video footage was captured using an AXIS P1385-E network camera mounted on a hea
 
 A significant requirement of STIV is that there should appear a variation of brightness or color on the water surface moving with the surface flow \cite{fujita2007development}. To ensure this, seeding particles were introduced into the flow to create visible surface patterns that move with the water without interfering with the flow dynamics, Figure \ref{fig:camera_setup}.b. These particles consist of a variety of candle wax beads. The density of the beads is 0.9 g/cm$^3$ with a diameter of XXX mm, which allows them to float on the water surface without sinking. The beads were introduced into the flow ensuring a consistent seeding density across the water surface.
 \subsection{Data Preprocessing}
+\subsubsection{Space-Time Image Generation}
 Video footage was processed to generate Space-Time Images (STIs) using the \textit{IVy Tools} software \cite{engel2025ivytools}. STIs were created using a time window of 128 frames at 60 fps and a spatial resolution of 128 pixels, resulting in images of size 128×128 pixels. The STIs were then converted to grayscale to reduce computational complexity and emphasize texture patterns.
+
+show images of STIs
+
+\subsubsection{Explain the STI stacks generation}
+
+Show STI stacks
 \subsection{Deep Learning Architecture}
 The angle prediction model employs a Convolutional Neural Network (CNN) architecture. The input to the network is a single-channel 128x128 grayscale STI. The architecture consists of four convolutional blocks and one fully connected (FC) layer, as detailed in Table \ref{tab:cnn_architecture_condensed}. This design allows the network to learn increasingly complex features as it progresses through the layers \cite{zeiler2014visualizing}.
 
 In between convolutions, the specified activation Gaussian Error Linear Unit (GELU) and Batch Normalization layers are applied in sequence. While the Rectified Linear Unit (ReLU) has been a foundational activation function due to its computational efficiency and ability to mitigate vanisihing gradients \cite{pmlr-v15-glorot11a}, recent advancements have shown benefits from smoother activation functions like GELU; helping mitigate the "dying ReLU" problem \cite{hendrycks2016GELU, lu2019dying}. BN is applied to stabilize and accelerate training \cite{ioffe2015batch} by normalizing the outputs of the convolutional layers. Following the convolutional blocks, a Global Average Pooling (GAP) layer is applied to the feature maps to prevent overfitting \cite{lin2013GAP, watanabe2021improving}. 
 
 Here it separates:
+\begin{itemize}
+    \item \textit{(Predicting flow velocity)} - The output of the GAP layer is then fed into a fully connected (FC) head consisting of two linear layers. Finally, the output is a single value representing the angle of the predominant stripe pattern in the STI. This output is subsequently scaled to the normalized target range of [-0.5, 0.5].
+    \item \textit{(Detecting flow direction)}
+\end{itemize}
 
-The output of the GAP layer is then fed into a fully connected (FC) head consisting of two linear layers. Finally, the output is a single value representing the angle of the predominant stripe pattern in the STI. This output is subsequently scaled to the normalized target range of [-0.5, 0.5].
 
 \begin{table}[!htbp]
     \centering
