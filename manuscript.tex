@@ -41,7 +41,7 @@ STIV \sep Deep Learning \sep Streamflow Measurements \sep Remote Sensing
 \section*{Abstract}
 Quantifying streamflow is essential for resource management, habitat monitoring, and emergency response, but extreme events pose challenges for direct measurements due to safety and accessibility concerns. Remote sensing techniques, such as Space-Time Image Velocimetry (STIV), allow for non-contact measurements of velocity and discharge. STIV uses video footage of the water surface to generate Space-Time Images (STI), assuming surface textures will act as passive tracers. However, environmental conditions such as sunlight conditions, surface reflections or rain can hinder the quality of the STIs. While Wavenumber–Frequency Spectra (WFS) filters can improve STI quality, they struggle in real-time applications. Incorporating deep learning can enhance real-time accuracy, as demonstrated in previous work with synthetic STIs. We aim to extend this by combining synthetic, computational, laboratory-controlled, and real-world data to improve the accuracy of flow measurements in natural settings.
 \section{Introduction}
-
+Measuring river discharge under natural flow conditions, particularly during floods, remains one of the most challenging tasks in river engineering \cite{fujita2019efficient, fujita2007development, muste2008large}. 
 
 Most recently, STIV started adopting a machine learning approach to improve the accuracy of the velocity estimation. Watanabe et al. proposed a deep learning approach that trains a convolutional neural network (CNN) to estimate the predominant stripe pattern angle of the STI \cite{watanabe2021improving}. The CNN was trained using synthetic STIs with results showing promising performance on STIs from real river footage.
 
@@ -53,7 +53,14 @@ Most recently, open-sourced software such as Image Velocimetry Tools (IVy Tools)
 
 
 \section{Background}
-Introduced by Fujita et al. \cite{fujita2007development}, the Space-Time Image Velocimetry (STIV) was proposed as an alternative to Large Scale Particle Image Velocimetry (LSPIV).
+\subsection{Space-Time Image Velocimetry}
+Developed by Fujita et al. \cite{fujita2007development}, the STIV was proposed as an alternative to Large Scale Particle Image Velocimetry (LSPIV) \cite{fujita1998large}. The technique consists of capturing video footage of the water surface and generating a Space-Time Image (STI) from the video frames. The STI is a two-dimensional representation of the water surface, where the x-axis represents space and the y-axis represents time. The x-axis is represented by search lines
+
+with a constant physical length are usually set parallel to the flow direction at regular intervals on the orthorectified image.
+
+The pixel intensity in the STI corresponds to the brightness of the water surface at a given location and time.
+
+
 
 ...gradient tensor method  further improved in 2018 with a two dimensional autocorrelation function for the image intensity distribution of STI that is used for detecting the most probable texture gradient included in STI \cite{fujita2019efficient}.
 
@@ -69,8 +76,9 @@ The mean velocity component at the line segment can be  estimated by
 \end{equation}
 where $S_x$ is the size of an image pixel and $S_t$ is the time interval between frames. 
 
+Although, STIV remains as a one-dimensional (1D) technique for estimating surface velocities. This assumes the velocity estimates occur along a constant flow direction in the streamwise direction \cite{fujita2019efficient, fujita2020application, fujita2007development,watanabe2021improving}. For an automated technique, this is not ideal since it requires more user intervention, limiting its applicability in real-time or large-scale scenarios. Most recently, Han et al. \cite{han_two-dimensional_2021} proposed  and Legleiter et al. \cite{legleiter2024two} expanded upon a two-dimensional (2D) STIV technique. This approach allows for a more comprehensive analysis of the flow field, enabling the estimation of both velocity and direction without the need for manually inspecting the direction of the flow. However, for a river with lacking obvious water surface features, the 2D-STIV algorithm led to areas of local noise and irregular flow directions \cite{legleiter2024two}.
 
-Although, STIV remains as a one-dimensional (1D) technique for estimating surface velocities. This assumes the search line has to be placed in the streamwise direction \cite{fujita2019efficient, fujita2020application, fujita2007development,watanabe2021improving}. For an automated technique, this is not ideal since it requires more user intervention, limiting its applicability in real-time or large-scale scenarios. Most recently, Legleiter et al. \cite{legleiter2024two} proposed a two-dimensional (2D) STIV technique that gathers information about the flow direction by evaluating multiple candidate search lines and identifying that which yields highest velocity. This approach allows for a more comprehensive analysis of the flow field, enabling the estimation of both velocity and direction without the need for manual line placement. However, for a river with lacking obvious water surface features, the 2D-STIV algorithm led to areas of local noise and irregular flow directions \cite{legleiter2024two}.
+Building upon the findings of Watanabe et al. \cite{watanabe2021improving} regarding ML-infused STIV and the advancements in 2D-STIV \cite{han_two-dimensional_2021, legleiter2024two}, this paper aims to develop a method that can accurately predict flow velocity and direction from STIs, even under challenging environmental conditions.
 \section{Methodology}
 \subsection{Data Collection}
 The dataset for training the deep learning models was collected in a controlled laboratory environment using the water recirculating flume at the Hydraulics Laboratory, Pennsylvania State University. The flume, measuring XXX m in length, XXX m in width, and XXX m in depth, provided a consistent setting for capturing surface water footage. Videos were recorded under a variety of simulated environmental conditions, including changes in lighting, surface reflections, discharge rates, water depth, presence of obstacles, and artificial rainfall.
