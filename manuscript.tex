@@ -20,7 +20,7 @@
 \author[inst1]{Liu, X.}
 
 \affiliation[inst1]{organization={Pennsylvania State University}, 
-			department={Department of Civil and Environmental Engineering},
+			department={Department of Civil and Environmental Engineering,},
             city={University Park},
             state={Pennsylvania},
             country={USA}}
@@ -41,7 +41,9 @@ STIV \sep Deep Learning \sep Streamflow Measurements \sep Remote Sensing
 \section*{Abstract}
 Quantifying streamflow is essential for resource management, habitat monitoring, and emergency response, but extreme events pose challenges for direct measurements due to safety and accessibility concerns. Remote sensing techniques, such as Space-Time Image Velocimetry (STIV), allow for non-contact measurements of velocity and discharge. STIV uses video footage of the water surface to generate Space-Time Images (STI), assuming surface textures will act as passive tracers. However, environmental conditions such as sunlight conditions, surface reflections or rain can hinder the quality of the STIs. While Wavenumber–Frequency Spectra (WFS) filters can improve STI quality, they struggle in real-time applications. Incorporating deep learning can enhance real-time accuracy, as demonstrated in previous work with synthetic STIs. We aim to extend this by combining synthetic, computational, laboratory-controlled, and real-world data to improve the accuracy of flow measurements in natural settings.
 \section{Introduction}
-Measuring river discharge under natural flow conditions, particularly during floods, remains one of the most challenging tasks in river engineering \cite{fujita2019efficient, fujita2007development, muste2008large}. 
+Accurate streamflow data are critical for water resource management, flood forecasting, infrastructure design, and environmental protection \cite{olson2007us, noauthor_guide_2008}. However, maintaining a comprehensive streamgage network remains a challenge. Within the Federal Priority Streamgages (FPS) Network, designed to meet national-level information needs, 3,200 of 3,640 gages provide year-round streamflow data. The remaining 440 gages either monitor only water level or operate seasonally, and over 1,100 additional eligible sites could not be supported due to lack of funding \cite{eberts2019monitoring}. This gap highlights the need for cost-effective and innovative solutions to expand monitoring capabilities and ensure consistent data collection across critical locations.
+
+Measuring river discharge under natural flow conditions, particularly during floods, remains one of the most challenging tasks in river engineering \cite{fujita2019efficient, fujita2007development, muste2008large}. Traditional methods, such as Acoustic Doppler Current Profilers (ADCPs) and Acoustic Doppler Velocimeters (ADVs), require direct contact with the water surface, which can be dangerous during extreme events (REFERENCE). These methods also face limitations in terms of accessibility, cost, and the need for specialized equipment and trained personnel (REFERENCE).
 
 Most recently, STIV started adopting a machine learning approach to improve the accuracy of the velocity estimation. Watanabe et al. proposed a deep learning approach that trains a convolutional neural network (CNN) to estimate the predominant stripe pattern angle of the STI \cite{watanabe2021improving}. The CNN was trained using synthetic STIs with results showing promising performance on STIs from real river footage.
 
@@ -114,7 +116,7 @@ The dataset for training the deep learning models was collected in a controlled 
         \fbox{\includegraphics[width=\textwidth]{photos/camera_view.jpg}}
         \textbf{(b)}
     \end{minipage}
-    \caption{(a) Experimental camera setup for capturing surface water features in video for STIV. (b) Example camera view including visible seeding particles and designated ground control points (GCPs) every 30 cm.}
+    \caption{(a) Experimental camera setup for capturing surface water features in video for STIV. (b) Example camera view including visible seeding particles and designated ground control points (GCPs).}
     \label{fig:camera_setup}
 \end{figure}
 
