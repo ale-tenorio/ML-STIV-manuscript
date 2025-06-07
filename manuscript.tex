@@ -131,7 +131,13 @@ show images of STIs
 
 \subsubsection{Explain the STI stacks generation}
 
-Show STI stacks
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{plots/Stack_STI_demo.png}
+    \caption{Example of a stack of Space-Time Images (STIs) generated from sequential video frames. Each STI represents the temporal evolution of surface features along a fixed spatial line.}
+    \label{fig:stack_sti_demo}
+\end{figure}
+
 \subsection{Deep Learning Architecture}
 The angle prediction model employs a Convolutional Neural Network (CNN) architecture. The input to the network is a single-channel 128x128 grayscale STI. The architecture consists of four convolutional blocks and one fully connected (FC) layer, as detailed in Table \ref{tab:cnn_architecture_condensed}. This design allows the network to learn increasingly complex features as it progresses through the layers \cite{zeiler2014visualizing}.
 
