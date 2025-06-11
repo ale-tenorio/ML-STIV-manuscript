@@ -163,17 +163,9 @@ This approach enables unsupervised, automated data labeling—since the artifici
 Both the angle prediction and flow direction models employ the same Convolutional Neural Network (CNN) architecture as their backbone. The input to the network is a single-channel 128x128 grayscale STI (for angle prediction) or an STI stack (for flow direction). While both models share the same convolutional blocks (see Table~\ref{tab:cnn_architecture_condensed}), they differ in their fully connected (FC) heads and output targets: one predicts the predominant stripe angle, and the other predicts the flow direction.
 
 In between convolutions, the specified activation Gaussian Error Linear Unit (GELU) and Batch Normalization layers are applied in sequence. While the Rectified Linear Unit (ReLU) has been a foundational activation function due to its computational efficiency and ability to mitigate vanisihing gradients \cite{pmlr-v15-glorot11a}, recent advancements have shown benefits from smoother activation functions like GELU; helping mitigate the "dying ReLU" problem \cite{hendrycks2016GELU, lu2019dying}. BN is applied to stabilize and accelerate training \cite{ioffe2015batch} by normalizing the outputs of the convolutional layers. Following the convolutional blocks, a Global Average Pooling (GAP) layer is applied to the feature maps to prevent overfitting \cite{lin2013GAP, watanabe2021improving}. 
-
-Here it separates:
-\begin{itemize}
-    \item \textit{(Predicting flow velocity)} - The output of the GAP layer is then fed into a fully connected (FC) head consisting of two linear layers. Finally, the output is a single value representing the angle of the predominant stripe pattern in the STI. This output is subsequently scaled to the normalized target range of [-0.5, 0.5].
-    \item \textit{(Detecting flow direction)}
-\end{itemize}
-
-
 \begin{table}[!htbp]
     \centering
-    \caption{CNN Architecture for Angle Prediction from STI Images.}
+    \caption{Generalized 2D CNN Feature Extractor for Space-Time Images}
     \label{tab:cnn_architecture_condensed}
     \resizebox{\columnwidth}{!}{% % Use \columnwidth if in a single column, \textwidth for full page width
     \begin{tabular}{llccccc} 
@@ -195,23 +187,47 @@ Here it separates:
         \multicolumn{6}{l}{\textit{Convolutional Block 4}} \\
         Conv2D                    & 128x16x16           & 128x16x16           & 3x3     & 128           & GELU   & BN2D    \\
         MaxPool2D                 & 128x16x16           & 128x8x8             & 2x2     & ---           & ---  & ---       \\
+        \midrule
+        \multicolumn{6}{l}{\textit{Feature Extraction}} \\
         GAP  & 128x8x8             & 128x1x1             & 8x8     & 128           & ---   & ---     \\
         Flatten                   & 128x1x1             & 128                 & ---     & ---           & ---  & ---       \\
-        \midrule
-        \multicolumn{6}{l}{\textit{Fully Connected (FC) Block}} \\
-        Linear                    & 128                 & 128                 & ---     & 128           & GELU    & BN1D   \\
-        Linear                    & 128                 & 1                   & ---     & 1             & Tanh  & ---      \\
         \bottomrule
     \end{tabular}
     } % End of \resizebox
-    \par\medskip\footnotesize
-    \textit{Notes:} Both CNNs share the same architecture on the convolutional blocks, but differ in the fully connected (FC) head. The first CNN predicts the angle of the predominant stripe pattern in the STI ($\theta_{max}$), while the second CNN predicts the flow direction ($\phi$). 
 \end{table}
 
-\subsection{Detecting flow direction ($\phi$)}
+\subsubsection{Detecting flow direction ($\phi$)}
 
+Inspired by the success of attention mechanisms in capturing feature importance, 
+such as in Vision Transformers (ViT)~\cite{dosovitskiy2020ViT} and the original 
+Transformer~\cite{vaswani2017attention}, our model employs a simplified 
+attention-like mechanism to weight the importance of different images within the 
+STI stack for the final direction prediction. 
+For each image in the input STI stack, with an associated known direction $\phi_i$, 
+a feature vector is first extracted using a shared Convolutional Neural Network. 
+This feature vector is then processed by a small Multi-Layer Perceptron (MLP) 
+scoring head to compute a scalar logit score $s_i$. These scores, across all 
+images in the stack, are subsequently normalized using a softmax function to obtain 
+attention weights $\alpha_i = \mathrm{softmax}(\mathbf{s})$, where $\mathbf{s}$ 
+is the vector of all scores. The final predicted direction is then a weighted sum 
+of the known angles: 
+\begin{equation}
+    \phi_{pred} = \sum_i \alpha_i \phi_i.
+\end{equation}
+This mechanism allows the model to 
+adaptively modulate the contribution of each angle $\phi_i$ based on the visual 
+features of its corresponding image in the stack.
 
-\subsection{Predicting flow velocity ($\theta_{max}$)}
+\begin{figure}[!htbp]
+    \centering
+    \includegraphics[width=0.95\textwidth]{plots/CNN_model_direction.drawio.png}
+    \caption{Schematic of the CNN-based model architecture for detecting flow direction ($\phi$) from an STI stack. The model processes the stack of STIs corresponding to different candidate directions and outputs the predicted predominant flow direction.}
+    \label{fig:CNN_model_direction}
+\end{figure}
+
+\subsubsection{Predicting flow velocity ($\theta_{max}$)}
+The output of the GAP layer is then fed into a fully connected (FC) head consisting of two linear layers. Finally, the output is a single value representing the angle of the predominant stripe pattern in the STI. This output is subsequently scaled to the normalized target range of [-0.5, 0.5].
+
 The model is trained using Mean Squared Error (MSE) loss, and the Adam optimizer is employed for optimization. The training process involves minimizing the MSE between the predicted angle and the target angle, which is scaled to the range of [-0.5, 0.5]. The model is trained for 100 epochs with a batch size of 32, using a learning rate of 0.001.
 
 \section{Results and Discussion}
